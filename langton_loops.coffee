@@ -1,16 +1,16 @@
 $ ->
   started = true
   running = false
-  width = 500
-  height = 500
-
+  width = 300
+  height = 300
+  mainLoop = 0
   rule = Array(9)
     
   options =
-    max: 120 
-    square: 4
+    max: 120
+    square: 2
     fringe: 0
-    delay: 1000
+    delay: 1
     refreshSteps: 1
 
   grid = Array(2)
@@ -89,31 +89,15 @@ $ ->
       rule[c][r][b][l][t] = i#     //   (with rotations)
   
   setNextGeneration = ->
-    for X in [1..options.max]
-      for Y in [1..options.max]
-        grid[1-cd][X][Y] = rule[grid[cd][X][Y]][grid[cd][X][Y - 1]][grid[cd][X + 1][Y]][grid[cd][X][Y + 1]][grid[cd][X - 1][Y]]
+    for X in [1...options.max-1]
+      for Y in [1...options.max-1]
+        a = grid[cd][X][Y]
+        b = grid[cd][X][Y - 1]
+        c = grid[cd][X + 1][Y]
+        d = grid[cd][X][Y + 1]
+        e = grid[cd][X - 1][Y]
+        grid[1-cd][X][Y] = rule[a][b][c][d][e]
     cd = 1 - cd
-  
-  startAction = (event, arg) ->
-    console.log 'start'
-    running = true
-    
-  stopAction = (event, arg) ->
-    console.log 'stop'
-    running = false
-  
-  run = ->
-    if running or stepsLeft > 0
-      setNextGeneration()
-      if (steps % options.refreshSteps == 0) or (stepsLeft > 0)
-        paint()
-      if stepsLeft > 0
-        stepsLeft--
-      $('#counter').text(steps++)
-      window.setTimeout(run, options.delay)
-    else
-      window.setTimeout(run, 500)
-
   
   clear = ->
     gr.fillStyle = "#fff"
@@ -131,11 +115,16 @@ $ ->
     fr = options.fringe
     for X in [0...options.max]
       for Y in [0...options.max]
-        plot(X*(sq+fr), Y*(sq+fr), sq, sq, loopColors[grid[cd][X][Y]])
+        color = grid[cd][X][Y]
+        plot(X*(sq+fr), Y*(sq+fr), sq, sq, loopColors[color])
   
   pausebutton = $('#pause-button')
   
   reinit = ->
+    steps = 0
+    $('#counter').text("0")
+    stepsLeft = 0
+    cd = 0
     running = false
     started = true
     # init the rules
@@ -159,18 +148,36 @@ $ ->
     readLoopAndRules(seedLoop, rules)
     clearUndefinedRules()
 
+  startAction = (event, arg) ->
+    $("#pause-button").text("Stop")
+    running = true
+    mainLoop = window.setInterval(run, options.delay)
+    
+    
+  stopAction = (event, arg) ->
+    $("#pause-button").text("Start")
+    running = false
+    window.clearInterval(mainLoop)
+
+  $('#reset-button').click ->
+    stopAction()
+    reinit()
+    paint()
+
   $('#pause-button').click ->
     if $(this).text() == "Stop"
-      $(this).text("Start")
-      running = false
+      stopAction()
     else if $(this).text() == "Start"
-      $(this).text("Stop")
-      running = true
+      startAction()
 
-    paint()
-    run()
-    
-  $('#reset-button').click ->
-    reinit()
+  run = ->
+    #paint()
+    if running or stepsLeft > 0
+      setNextGeneration()
+      if (steps % options.refreshSteps == 0) or (stepsLeft > 0)
+        paint()
+      if stepsLeft > 0
+        stepsLeft--
+      $('#counter').text(steps++)
 
   reinit()
