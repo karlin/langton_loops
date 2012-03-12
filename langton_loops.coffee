@@ -1,14 +1,13 @@
 $ ->
   started = true
   running = false
-  width = 300
-  height = 300
+  width = 600
+  height = 600
   mainLoop = 0
   rule = Array(9)
     
   options =
-    max: 120
-    square: 2
+    max: 100
     fringe: 0
     delay: 1
     refreshSteps: 1
@@ -20,7 +19,8 @@ $ ->
   stepsLeft = 0
   canvas = $("#gr").get()
   gr = document.getElementById("gr").getContext("2d") 
-  loopColors = [ "black", "blue", "red", "green" , "yellow", "magenta", "white", "cyan","orange"]
+  #loopColors = [ "black", "blue",   "red",    "green" , "yellow", "magenta","white",  "cyan",   "orange"]
+  loopColors =  [ "black", "#1f77b4","#d62728","#2ca02c","#bcbd22","#e377c2","#e377c2","#17becf","#ff7f0e"]
   
   seedLoop = [
      ' 22222222',
@@ -65,10 +65,10 @@ $ ->
     return
   
   readLoopAndRules = (loopLines, loopRules) ->
-    y = options.max / 2
+    y = (options.max / 2)-5
     for loopLine in loopLines
       y++
-      x = options.max / 2
+      x = (options.max / 2)-5
       for j in [0...loopLine.length]
         x++
         s = loopLine.substring(j, j+1)
@@ -89,14 +89,10 @@ $ ->
       rule[c][r][b][l][t] = i#     //   (with rotations)
   
   setNextGeneration = ->
+    c = grid[cd]
     for X in [1...options.max-1]
       for Y in [1...options.max-1]
-        a = grid[cd][X][Y]
-        b = grid[cd][X][Y - 1]
-        c = grid[cd][X + 1][Y]
-        d = grid[cd][X][Y + 1]
-        e = grid[cd][X - 1][Y]
-        grid[1-cd][X][Y] = rule[a][b][c][d][e]
+        grid[1 - cd][X][Y] = rule[c[X][Y]][c[X][Y - 1]][c[X + 1][Y]][c[X][Y + 1]][c[X - 1][Y]]
     cd = 1 - cd
   
   clear = ->
@@ -111,7 +107,7 @@ $ ->
     if started
       clear()
       started = false
-    sq = options.square
+    sq = width/options.max
     fr = options.fringe
     for X in [0...options.max]
       for Y in [0...options.max]
@@ -171,13 +167,17 @@ $ ->
       startAction()
 
   run = ->
-    #paint()
     if running or stepsLeft > 0
       setNextGeneration()
       if (steps % options.refreshSteps == 0) or (stepsLeft > 0)
         paint()
       if stepsLeft > 0
         stepsLeft--
-      $('#counter').text(steps++)
+      steps++
+      #options.refreshSteps+=0.5 if 0 == (steps % 100)
+      $('#counter').text(steps)
 
   reinit()
+  $("canvas").attr("width", width).attr("height", height)
+  paint()
+  $("#pause-button").removeAttr("disabled")

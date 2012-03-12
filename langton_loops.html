@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Self-replicating loops in Cellular Space</title>
+    <title>Langton's Loops</title>
     <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="langton_loops.js"></script>
+    <style>
+    body,button { font-size: 22px; font-weight:bold; }
+    .ui { position: absolute; left: 15px; z-index: 1; }
+    #pause-button { top: 15px; }
+    #reset-button { top: 50px; }
+    #counter      { top: 80px; color: white; }
+    #gr { position: absolute; left: 10px; top: 10px; z-index: 0; }
+    </style>
   </head>
   <body>
-    <h1>Self-Replication loops in Cellular Space</h1>
-    
-    <center>
-      <canvas width="500" height="500" id="gr"/>
-    </center>
-    <button type="button" id="pause-button">Start</button>
-    <span id="counter">0</span><br/>
-    <button type="button" id="reset-button">Reset</button>    
+    <button class="ui" type="button" id="pause-button" disabled="disabled">Start</button>
+    <span class="ui" id="counter">0</span><br/>
+    <button class="ui" type="button" id="reset-button">Reset</button>    
+    <canvas width="500" height="500" id="gr"/>
   </body>
 </html>
