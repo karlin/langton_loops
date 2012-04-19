@@ -1,3 +1,6 @@
+# From necsi.edu/postdocs/sayama/sdsr/java/loops.java
+# Self-Replicating Loops & Ant, Programmed by Eli Bachmutsky, Copyleft Feb.1999
+
 $ ->
   started = true
   running = false
@@ -18,7 +21,7 @@ $ ->
   steps = 0
   stepsLeft = 0
   canvas = $("#gr").get()
-  gr = document.getElementById("gr").getContext("2d") 
+  gr = $("#gr")[0].getContext("2d")
   #loopColors = [ "black", "blue",   "red",    "green" , "yellow", "magenta","white",  "cyan",   "orange"]
   loopColors =  [ "black", "#1f77b4","#d62728","#2ca02c","#bcbd22","#e377c2","#e377c2","#17becf","#ff7f0e"]
   
@@ -56,12 +59,7 @@ $ ->
           '700077 701120 701220 701250 702120 702221 702251 702321 702525 702720 '
 
   clearUndefinedRules = ->
-    for a in [0..8]
-      for b in [0..8]
-        for c in [0..8]
-          for d in [0..8]
-            for e in [0..8]
-              rule[a][b][c][d][e] = a if rule[a][b][c][d][e] == -1
+    (rule[a][b][c][d][e] = a if rule[a][b][c][d][e] == -1) for e in [0..8] for d in [0..8] for c in [0..8] for b in [0..8] for a in [0..8]
     return
   
   readLoopAndRules = (loopLines, loopRules) ->
@@ -109,10 +107,11 @@ $ ->
       started = false
     sq = width/options.max
     fr = options.fringe
+    b = sq+fr
     for X in [0...options.max]
       for Y in [0...options.max]
         color = grid[cd][X][Y]
-        plot(X*(sq+fr), Y*(sq+fr), sq, sq, loopColors[color])
+        plot(X*b, Y*b, sq, sq, loopColors[color]) 
   
   pausebutton = $('#pause-button')
   
