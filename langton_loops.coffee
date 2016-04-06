@@ -8,7 +8,7 @@ $ ->
   height = 600
   mainLoop = 0
   rule = Array(9)
-    
+
   options =
     max: 100
     fringe: 0
@@ -20,11 +20,10 @@ $ ->
   cd = 0
   steps = 0
   stepsLeft = 0
-  canvas = $("#gr").get()
-  gr = $("#gr")[0].getContext("2d")
-  #loopColors = [ "black", "blue",   "red",    "green" , "yellow", "magenta","white",  "cyan",   "orange"]
+  canvas = $("#gr")
+  gr = canvas.get().getContext("2d")
   loopColors =  [ "black", "#1f77b4","#d62728","#2ca02c","#bcbd22","#e377c2","#e377c2","#17becf","#ff7f0e"]
-  
+
   seedLoop = [
      ' 22222222',
      '2170140142',
@@ -36,7 +35,12 @@ $ ->
      '21222222122222',
      '207107107111112',
      ' 2222222222222']
-     
+
+  # https://github.com/GollyGang/ruletablerepository/blob/gh-pages/downloads/Langtons-Loops.table
+  # 8 states
+  # 219 rules
+  # format: C N E S W C'
+
   rules = '000000 000012 000020 000030 000050 000063 000071 000112 000122 000132 000212 '+
           '000220 000230 000262 000272 000320 000525 000622 000722 001022 001120 002020 '+
           '002030 002050 002125 002220 002322 005222 012321 012421 012525 012621 012721 '+
@@ -61,7 +65,7 @@ $ ->
   clearUndefinedRules = ->
     (rule[a][b][c][d][e] = a if rule[a][b][c][d][e] == -1) for e in [0..8] for d in [0..8] for c in [0..8] for b in [0..8] for a in [0..8]
     return
-  
+
   readLoopAndRules = (loopLines, loopRules) ->
     y = (options.max / 2)-5
     for loopLine in loopLines
@@ -73,7 +77,7 @@ $ ->
         if s == " "
           s = "0"
         grid[cd][x][y] = parseInt s
-    
+
     for len in [0...loopRules.length] by 7
       c = parseInt(loopRules.substring(len, len+1))
       t = parseInt(loopRules.substring(len+1,len+2))
@@ -81,26 +85,26 @@ $ ->
       b = parseInt(loopRules.substring(len+3,len+4))
       l = parseInt(loopRules.substring(len+4,len+5))
       i = parseInt(loopRules.substring(len+5,len+6))
-      rule[c][t][r][b][l] = i#     //       T 
+      rule[c][t][r][b][l] = i#     //       T
       rule[c][l][t][r][b] = i#     //    L  C R   >>=>> I (next state)
       rule[c][b][l][t][r] = i#     //       B
       rule[c][r][b][l][t] = i#     //   (with rotations)
-  
+
   setNextGeneration = ->
     c = grid[cd]
     for X in [1...options.max-1]
       for Y in [1...options.max-1]
         grid[1 - cd][X][Y] = rule[c[X][Y]][c[X][Y - 1]][c[X + 1][Y]][c[X][Y + 1]][c[X - 1][Y]]
     cd = 1 - cd
-  
+
   clear = ->
     gr.fillStyle = "#fff"
     gr.fillRect(0, 0, canvas.width, canvas.height)
-    
+
   plot = (x, y, w, h, color) ->
     gr.fillStyle = color
     gr.fillRect(x, y, w, h)
-  
+
   paint = ->
     if started
       clear()
@@ -111,10 +115,10 @@ $ ->
     for X in [0...options.max]
       for Y in [0...options.max]
         color = grid[cd][X][Y]
-        plot(X*b, Y*b, sq, sq, loopColors[color]) 
-  
+        plot(X*b, Y*b, sq, sq, loopColors[color])
+
   pausebutton = $('#pause-button')
-  
+
   reinit = ->
     steps = 0
     $('#counter').text("0")
@@ -147,8 +151,8 @@ $ ->
     $("#pause-button").text("Stop")
     running = true
     mainLoop = window.setInterval(run, options.delay)
-    
-    
+
+
   stopAction = (event, arg) ->
     $("#pause-button").text("Start")
     running = false
