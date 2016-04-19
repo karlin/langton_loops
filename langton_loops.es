@@ -8,7 +8,7 @@ $(() => { // TODO de-jquerify
     mainLoop: 0,
     rule: Array(9),
     options: {
-      max: 100,
+      gridSize: 100,
       fringe: 0,
       delay: 1,
       seedPosition: [45,45],
@@ -19,10 +19,11 @@ $(() => { // TODO de-jquerify
     cd: 0,
     steps: 0,
     states: 8,
+    enumStates: [0,1,2,3,4,5,6,7,8],
     stepsLeft: 0,
     loopColors:
       ['black', '#1f77b4', '#d62728', '#2ca02c', '#bcbd22', '#e377c2', '#e377c2', '#17becf', '#ff7f0e'],
-    seedLoop: [
+    seed: [
       ' 22222222',
       '2170140142',
       '2022222202',
@@ -32,7 +33,7 @@ $(() => { // TODO de-jquerify
       '272    212',
       '21222222122222',
       '207107107111112',
-      ' 2222222222222'],
+      ' 2222222222222'].map((row)=>row.split('').map((char)=>(!isNaN(parseInt(char)))?parseInt(char):0))
   };
 
   let canvas = $('#gr'); // TODO de-jquerify
@@ -64,103 +65,10 @@ $(() => { // TODO de-jquerify
      500022 500215 500225 500232 500272 500520 502022 502122 502152 502220 502244
      502722 512122 512220 512422 512722 600011 600021 602120 612125 612131 612225
      700077 701120 701220 701250 702120 702221 702251 702321 702525 702720 `.trim().split(/\s+/);
+  //
 
-  clearUndefinedRules = function() {
-    let a, b, c, d, e, k, m, n, o, p;
-    let states = 8;
-    for (a = k = 0; k <= states; a = ++k) {
-      for (b = m = 0; m <= states; b = ++m) {
-        for (c = n = 0; n <= states; c = ++n) {
-          for (d = o = 0; o <= states; d = ++o) {
-            for (e = p = 0; p <= states; e = ++p) {
-              if (rule[a][b][c][d][e] === -1) {
-                rule[a][b][c][d][e] = a;
-              }
-            }
-          }
-        }
-      }
-    }
-  };
-  readLoopAndRules = function(loopLines, loopRules) {
-    let b, c, i, j, k, l, len, len1, loopLine, m, n, r, ref, ref1, results, s, t, x, y;
-    y = (options.max / 2) - 5;
-    for (k = 0, len1 = loopLines.length; k < len1; k++) {
-      loopLine = loopLines[k];
-      y++;
-      x = (options.max / 2) - 5;
-      for (j = m = 0, ref = loopLine.length; 0 <= ref ? m < ref : m > ref; j = 0 <= ref ? ++m : --m) {
-        x++;
-        s = loopLine.substring(j, j + 1);
-        if (s === ' ') {
-          s = '0';
-        }
-        grid[cd][x][y] = parseInt(s);
-      }
-    }
-
-    for (n = 0; n < loopRules.length; n++) {
-      [c, t, r, b, l, i] = loopRules[n].split('');
-      rule[c][t][r][b][l] = i;//       T
-      rule[c][l][t][r][b] = i;//     L C R   >>=>> I (next state)
-      rule[c][b][l][t][r] = i;//       B
-      rule[c][r][b][l][t] = i;//   (with rotations)
-    }
-  };
-  let setNextGeneration = function() {
-    let X, Y, c, k, m, ref, ref1;
-    c = grid[cd];
-    for (X = k = 1, ref = options.max - 1; 1 <= ref ? k < ref : k > ref; X = 1 <= ref ? ++k : --k) {
-      for (Y = m = 1, ref1 = options.max - 1; 1 <= ref1 ? m < ref1 : m > ref1; Y = 1 <= ref1 ? ++m : --m) {
-        grid[1 - cd][X][Y] = rule[c[X][Y]][c[X][Y - 1]][c[X + 1][Y]][c[X][Y + 1]][c[X - 1][Y]];
-      }
-    }
-    return cd = 1 - cd;
-  };
-
-  let clear = function(context) {
-    return function() {
-      context.fillStyle = '#fff';
-      return context.fillRect(0, 0, width, height);
-    }
-  }(gr);
-
-  let plot = function(context) {
-    return function(x, y, w, h, color) {
-      context.fillStyle = color;
-      return context.fillRect(x, y, w, h);
-    }
-  }(gr);
-
-  let paint = function(sim, graphicsContext) {
-    return function() {
-      let X, Y, b, color, fr, k, ref, results, sq;
-      if (sim.started) {
-        clear(graphicsContext);
-        sim.started = false;
-      }
-      sq = width / options.max;
-      fr = options.fringe;
-      b = sq + fr;
-      results = [];
-      for (X = k = 0, ref = options.max; 0 <= ref ? k < ref : k > ref; X = 0 <= ref ? ++k : --k) {
-        results.push((function() {
-          let m, ref1, results1;
-          results1 = [];
-          for (Y = m = 0, ref1 = options.max; 0 <= ref1 ? m < ref1 : m > ref1; Y = 0 <= ref1 ? ++m : --m) {
-            color = grid[cd][X][Y];
-            results1.push(plot(X * b, Y * b, sq, sq, loopColors[color]));
-          }
-          return results1;
-        })());
-      }
-      return results;
-    };
-  }(gr);
-
-  let pausebutton = $('#pause-button'); // TODO de-jquerify
-
-  let reinit = function(sim) {
+  let reInit = function(sim) {
+    let options = sim.options;
     let a, b, c, d, e, k, m, n, o, p;
     sim.steps = 0;
     $('#counter').text('0'); // TODO de-jquerify
@@ -183,14 +91,14 @@ $(() => { // TODO de-jquerify
         }
       }
     }
-    grid[0] = (function() {
+    sim.grid[0] = (function() {
       let q, ref, results;
       results = [];
-      for (a = q = 0, ref = options.max; 0 <= ref ? q < ref : q > ref; a = 0 <= ref ? ++q : --q) {
+      for (a = q = 0, ref = options.gridSize; 0 <= ref ? q < ref : q > ref; a = 0 <= ref ? ++q : --q) {
         results.push((function() {
           let ref1, results1, u;
           results1 = [];
-          for (b = u = 0, ref1 = options.max; 0 <= ref1 ? u < ref1 : u > ref1; b = 0 <= ref1 ? ++u : --u) {
+          for (b = u = 0, ref1 = options.gridSize; 0 <= ref1 ? u < ref1 : u > ref1; b = 0 <= ref1 ? ++u : --u) {
             results1.push(0);
           }
           return results1;
@@ -198,14 +106,14 @@ $(() => { // TODO de-jquerify
       }
       return results;
     })();
-    grid[1] = (function() {
+    sim.grid[1] = (function() {
       let q, ref, results;
       results = [];
-      for (a = q = 0, ref = options.max; 0 <= ref ? q < ref : q > ref; a = 0 <= ref ? ++q : --q) {
+      for (a = q = 0, ref = options.gridSize; 0 <= ref ? q < ref : q > ref; a = 0 <= ref ? ++q : --q) {
         results.push((function() {
           let ref1, results1, u;
           results1 = [];
-          for (b = u = 0, ref1 = options.max; 0 <= ref1 ? u < ref1 : u > ref1; b = 0 <= ref1 ? ++u : --u) {
+          for (b = u = 0, ref1 = options.gridSize; 0 <= ref1 ? u < ref1 : u > ref1; b = 0 <= ref1 ? ++u : --u) {
             results1.push(0);
           }
           return results1;
@@ -213,27 +121,149 @@ $(() => { // TODO de-jquerify
       }
       return results;
     })();
-    readLoopAndRules(seedLoop, rules);
-    clearUndefinedRules();
+    placeSeed(sim);
+    initRules(sim);
+    clearUndefinedRules(sim);
   };
+
+  placeSeed = function(sim) {
+    let rules = sim.rules;
+    let seed = sim.seed;
+    let gridSize = sim.options.gridSize;
+    let startPos = (gridSize / 2) - 5;
+    let seedLoc = {
+      y: startPos
+    };
+    let seedRowLength;
+    seed.forEach((row) => {
+      seedLoc.y++;
+      seedLoc.x = startPos;
+      seedWidth = row.length;
+      for (var j = 0; j < seedWidth; j++) {
+        seedLoc.x++;
+        let value = row[j];
+        sim.grid[sim.cd][seedLoc.x][seedLoc.y] = value;
+      }
+
+    });
+  };
+
+
+  initRules = function(sim) {
+    let rules = sim.rules;
+    let c, t, r, b, l, i;
+    for (n = 0; n < rules.length; n++) {
+      [c, t, r, b, l, i] = rules[n].split('');
+      sim.rule[c][t][r][b][l] = i;//       T
+      sim.rule[c][l][t][r][b] = i;//     L C R   >>=>> I (next state)
+      sim.rule[c][b][l][t][r] = i;//       B
+      sim.rule[c][r][b][l][t] = i;//   (with rotations)
+    }
+  };
+
+  // TODO simplify/rename clearUndefinedRules
+  // let forDim = function(rules, states, d) {
+  //   enumStates.forEach((a) => {
+  //     return forDim(rules, states, d+1);
+  //   });
+  // };
+
+  let clearUndefinedRules = function(sim) {//rules, states) {
+    // [0,1,2,3,4].forEach((d) => forDim(rules, states, d));
+
+    let states = sim.states;
+    let a, b, c, d, e;
+    //let states = 8;
+    for (a = k = 0; k <= states; a = ++k) {
+      for (b = m = 0; m <= states; b = ++m) {
+        for (c = n = 0; n <= states; c = ++n) {
+          for (d = o = 0; o <= states; d = ++o) {
+            for (e = p = 0; p <= states; e = ++p) {
+              if (sim.rule[a][b][c][d][e] === -1) {
+                sim.rule[a][b][c][d][e] = a;
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  let setNextGeneration = function(sim) {
+    let options = sim.options;
+    let X, Y, c, k, m, ref, ref1;
+    c = sim.grid[sim.cd];
+    for (X = k = 1, ref = options.gridSize - 1; 1 <= ref ? k < ref : k > ref; X = 1 <= ref ? ++k : --k) {
+      for (Y = m = 1, ref1 = options.gridSize - 1; 1 <= ref1 ? m < ref1 : m > ref1; Y = 1 <= ref1 ? ++m : --m) {
+        sim.grid[1 - sim.cd][X][Y] = sim.rule[c[X][Y]][c[X][Y - 1]][c[X + 1][Y]][c[X][Y + 1]][c[X - 1][Y]];
+      }
+    }
+    return sim.cd = 1 - sim.cd;
+  };
+
+  let clear = function(context) {
+    return function() {
+      context.fillStyle = '#fff';
+      return context.fillRect(0, 0, context.width, context.height);
+    }
+  }(gr);
+
+  let plot = function(context) {
+    return function(x, y, w, h, color) {
+      context.fillStyle = color;
+      return context.fillRect(x, y, w, h);
+    }
+  }(gr);
+
+  let paint = function(graphicsContext) {
+    return function(sim) {
+      let options = sim.options;
+      let X, Y, b, color, fr, k, ref, results, sq;
+      if (sim.started) {
+        clear(graphicsContext);
+        sim.started = false;
+      }
+      sq = sim.width / options.gridSize;
+      fr = options.fringe;
+      b = sq + fr;
+      results = [];
+      for (X = k = 0, ref = options.gridSize; 0 <= ref ? k < ref : k > ref; X = 0 <= ref ? ++k : --k) {
+        results.push((function() {
+          let m, ref1, results1;
+          results1 = [];
+          for (Y = m = 0, ref1 = options.gridSize; 0 <= ref1 ? m < ref1 : m > ref1; Y = 0 <= ref1 ? ++m : --m) {
+            color = sim.grid[sim.cd][X][Y];
+            results1.push(plot(X * b, Y * b, sq, sq, sim.loopColors[color]));
+          }
+          return results1;
+        })());
+      }
+      return results;
+    };
+  }(gr);
+
+  let pausebutton = $('#pause-button'); // TODO de-jquerify
 
   startAction = (event, arg) => {
     $('#pause-button').text('Stop'); // TODO de-jquerify
-    running = true;
-    simulation.mainLoop = setInterval(run, options.delay);
+    simulation.running = true;
+    runSim = () => run(simulation);
+    simulation.mainLoop = setInterval(runSim, simulation.options.delay);
   };
 
   stopAction = (event, arg) => {
     $('#pause-button').text('Start');
-    running = false;
-    window.clearInterval(mainLoop);
+    simulation.running = false;
+    window.clearInterval(simulation.mainLoop);
   };
 
-  $('#reset-button').click(() => {
-    stopAction();
-    reinit();
-    paint();
-  });// TODO de-jquerify
+  let onReset = (sim) => {
+    stopAction(sim);
+    reInit(sim);
+    paint(sim);
+  };
+
+  $('#reset-button').click(() => onReset(simulation));// TODO de-jquerify
 
   $('#pause-button').click(() => {
     let text = $('#pause-button').text();
@@ -242,13 +272,14 @@ $(() => { // TODO de-jquerify
     } else if (text === 'Start') {
       startAction();
     }
+    return false;
   });// TODO de-jquerify
 
   run = (sim) => {
     if (sim.running || sim.stepsLeft > 0) {
-      setNextGeneration();
+      setNextGeneration(sim);
       if ((sim.steps % sim.options.refreshSteps === 0) || (sim.stepsLeft > 0)) {
-        paint();
+        paint(sim);
       }
       if (sim.stepsLeft > 0) {
         sim.stepsLeft--;
@@ -257,8 +288,9 @@ $(() => { // TODO de-jquerify
       $('#counter').text(sim.steps); // TODO de-jquerify
     }
   };
-  reinit(sim);
-  $('canvas').attr("width", width).attr("height", height); // TODO de-jquerify
-  paint(sim);
+
+  reInit(simulation);
+  $('canvas').attr("width", simulation.width).attr("height", simulation.height); // TODO de-jquerify
+  paint(simulation);
   $("#pause-button").removeAttr("disabled"); // TODO de-jquerify
 });
