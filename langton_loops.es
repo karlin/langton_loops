@@ -3,14 +3,12 @@ $(() => { // TODO de-jquerify
   let simulation = {
     started: true,
     running: false,
-    width: 600,
-    height: 600,
-    mainLoop: 0,
+    width: 400,
+    height: 400,
     rule: Array(9),
     options: {
       gridSize: 100,
       fringe: 0,
-      delay: 1,
       seedPosition: [45,45],
       refreshSteps: 1
     },
@@ -36,7 +34,7 @@ $(() => { // TODO de-jquerify
       ' 2222222222222'].map((row)=>row.split('').map((char)=>(!isNaN(parseInt(char)))?parseInt(char):0))
   };
 
-  let canvas = $('#gr'); // TODO de-jquerify
+  let canvas = $('.js-grid'); // TODO de-jquerify
   let gr = canvas[0].getContext('2d'); // TODO de-jquerify
 
   // https://github.com/GollyGang/ruletablerepository/blob/gh-pages/downloads/Langtons-Loops.table
@@ -84,9 +82,7 @@ $(() => { // TODO de-jquerify
           sim.rule[a][b][c] = Array(9);
           for (d = o = 0; o <= 8; d = ++o) {
             sim.rule[a][b][c][d] = Array(9);
-            for (e = p = 0; p <= 8; e = ++p) {
-              sim.rule[a][b][c][d][e] = -1;
-            }
+            sim.rule[a][b][c][d].fill(-1);
           }
         }
       }
@@ -178,11 +174,7 @@ $(() => { // TODO de-jquerify
       for (b = m = 0; m <= states; b = ++m) {
         for (c = n = 0; n <= states; c = ++n) {
           for (d = o = 0; o <= states; d = ++o) {
-            for (e = p = 0; p <= states; e = ++p) {
-              if (sim.rule[a][b][c][d][e] === -1) {
-                sim.rule[a][b][c][d][e] = a;
-              }
-            }
+            sim.rule[a][b][c][d] = sim.rule[a][b][c][d].map((x) => x == -1 ? a : x);
           }
         }
       }
@@ -201,17 +193,17 @@ $(() => { // TODO de-jquerify
     return sim.cd = 1 - sim.cd;
   };
 
-  let clear = function(context) {
+  let clear = function(graphicsContext) {
     return function() {
-      context.fillStyle = '#fff';
-      return context.fillRect(0, 0, context.width, context.height);
+      graphicsContext.fillStyle = '#fff';
+      return graphicsContext.fillRect(0, 0, graphicsContext.width, graphicsContext.height);
     }
   }(gr);
 
-  let plot = function(context) {
+  let plot = function(graphicsContext) {
     return function(x, y, w, h, color) {
-      context.fillStyle = color;
-      return context.fillRect(x, y, w, h);
+      graphicsContext.fillStyle = color;
+      return graphicsContext.fillRect(x, y, w, h);
     }
   }(gr);
 
@@ -220,7 +212,7 @@ $(() => { // TODO de-jquerify
       let options = sim.options;
       let X, Y, b, color, fr, k, ref, results, sq;
       if (sim.started) {
-        clear(graphicsContext);
+        // clear(graphicsContext);
         sim.started = false;
       }
       sq = sim.width / options.gridSize;
@@ -242,38 +234,42 @@ $(() => { // TODO de-jquerify
     };
   }(gr);
 
-  let pausebutton = $('#pause-button'); // TODO de-jquerify
+  let pauseButton = $('.js-pause-button'); // TODO de-jquerify
 
-  startAction = (event, arg) => {
-    $('#pause-button').text('Stop'); // TODO de-jquerify
-    simulation.running = true;
-    runSim = () => run(simulation);
-    simulation.mainLoop = setInterval(runSim, simulation.options.delay);
+
+  let animateSimulation = (sim) => {
+    run(sim);
+    window.requestAnimationFrame(()=>animateSimulation(sim));
+  }
+
+  start = (sim) => {
+    pauseButton.text('Pause'); // TODO de-jquerify
+    sim.running = true;
+    animateSimulation(sim);
   };
 
-  stopAction = (event, arg) => {
-    $('#pause-button').text('Start');
-    simulation.running = false;
-    window.clearInterval(simulation.mainLoop);
+  stop = (sim) => {
+    pauseButton.text('Start');
+    sim.running = false;
   };
 
   let onReset = (sim) => {
-    stopAction(sim);
+    stop(sim);
     reInit(sim);
     paint(sim);
   };
 
-  $('#reset-button').click(() => onReset(simulation));// TODO de-jquerify
-
-  $('#pause-button').click(() => {
-    let text = $('#pause-button').text();
-    if (text === 'Stop') {
-      stopAction();
-    } else if (text === 'Start') {
-      startAction();
+  let onPause = (sim) => {
+    let text = pauseButton.text();
+    if (sim.running) {
+      stop(sim);
+    } else {
+      start(sim);
     }
-    return false;
-  });// TODO de-jquerify
+  };
+
+  $('.js-reset-button').click(() => onReset(simulation));// TODO de-jquerify
+  pauseButton.click(() => onPause(simulation));// TODO de-jquerify
 
   run = (sim) => {
     if (sim.running || sim.stepsLeft > 0) {
@@ -285,12 +281,13 @@ $(() => { // TODO de-jquerify
         sim.stepsLeft--;
       }
       sim.steps++;
-      $('#counter').text(sim.steps); // TODO de-jquerify
+      $('.js-counter').text(sim.steps); // TODO de-jquerify
     }
   };
 
-  reInit(simulation);
-  $('canvas').attr("width", simulation.width).attr("height", simulation.height); // TODO de-jquerify
-  paint(simulation);
-  $("#pause-button").removeAttr("disabled"); // TODO de-jquerify
+  canvas.attr("width", simulation.width).attr("height", simulation.height); // TODO de-jquerify
+  onReset(simulation);
+  // reInit(simulation);
+  // paint(simulation);
+  pauseButton.removeAttr("disabled"); // TODO de-jquerify
 });

@@ -5,20 +5,46 @@
     <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="langton_loops.js"></script>
     <style>
-    html {background-color: rgba(0,0,0,255);}
-      body,button { font-size: 22px; font-weight:bold;}
-      .ui { position: absolute; z-index: 1; }
-      #pause-button { top: 5px; }
-      #reset-button { top: 60px; }
-      #counter      { bottom: 10px; color: black; color: white; text-shadow: black 0.1em 0.1em 0.2em}
-      #gr { position: absolute; left: 10px; top: 10px; z-index: 0; }
-      button { margin: 10px; padding: 2px;}
+
+      html {
+        background-color: black;
+      }
+
+      body,button {
+        font-size: 15px;
+        font-weight: bold;
+        font-family: sans-serif;
+      }
+
+      .ui {
+        position: absolute;
+        z-index: 1;
+      }
+
+      .ui__control {
+        margin-top: 5px;
+        width: 5em;
+      }
+
+      .ui__label {
+        bottom: 10px;
+        color: white;
+      }
+
+      .js-grid {
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        z-index: 0;
+      }
     </style>
   </head>
   <body>
-    <button class="ui" type="button" id="pause-button" disabled="disabled">Start</button>
-    <span class="ui" id="counter">0</span><br/>
-    <button class="ui" type="button" id="reset-button">Reset</button>    
-    <canvas width="500" height="500" id="gr"/>
+    <div class="ui">
+      <button class="ui__control js-pause-button" disabled="disabled">Start</button>
+      <button class="ui__control js-reset-button">Reset</button>
+      <span class="ui__label">Step: </span><span class="js-counter ui__label">0</span>
+    </div>
+    <canvas class="js-grid"/>
   </body>
 </html>
