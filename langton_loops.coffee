@@ -21,7 +21,7 @@ $ ->
   steps = 0
   stepsLeft = 0
   canvas = $("#gr")
-  gr = canvas.get().getContext("2d")
+  gr = canvas.get(0).getContext("2d")
   loopColors =  [ "black", "#1f77b4","#d62728","#2ca02c","#bcbd22","#e377c2","#e377c2","#17becf","#ff7f0e"]
 
   seedLoop = [
