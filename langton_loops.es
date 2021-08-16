@@ -1,38 +1,48 @@
 $(() => { // TODO de-jquerify
   let setInterval = window.setInterval;
   let simulation = {
-    started: true,
-    running: false,
-    width: 400,
-    height: 400,
-    rule: Array(9),
-    options: {
-      gridSize: 100,
-      fringe: 0,
-      seedPosition: [45,45],
-      refreshSteps: 1
-    },
+      // let simulation = function() {
+      //   return {
+      started: true,
+      running: false,
+      width: 400,
+      height: 400,
+      rule: Array(9),
+      options: {
+        gridSize: 200,
+        fringe: 0,
+        seedPosition: [45,45],
+        refreshSteps: 1
+      },
 
-    grid: Array(2),
-    cd: 0,
-    steps: 0,
-    states: 8,
-    enumStates: [0,1,2,3,4,5,6,7,8],
-    stepsLeft: 0,
-    loopColors:
-      ['black', '#1f77b4', '#d62728', '#2ca02c', '#bcbd22', '#e377c2', '#e377c2', '#17becf', '#ff7f0e'],
-    seed: [
-      ' 22222222',
-      '2170140142',
-      '2022222202',
-      '272    212',
-      '212    212',
-      '202    212',
-      '272    212',
-      '21222222122222',
-      '207107107111112',
-      ' 2222222222222'].map((row)=>row.split('').map((char)=>(!isNaN(parseInt(char)))?parseInt(char):0))
-  };
+      grid: Array(2),
+      cd: 0,
+      steps: 0,
+      states: 8,
+      enumStates: [0,1,2,3,4,5,6,7,8],
+      stepsLeft: 0,
+      loopColors:
+        ['black', '#1f77b4', '#d62728', '#2ca02c', '#bcbd22', '#e377c2', '#e377c2', '#17becf', '#ff7f0e'],
+      seed: [
+        ' 22222222',
+        '2170140142',
+        '2022222202',
+        '272    212',
+        '212    212',
+        '202    212',
+        '272    212',
+        '21222222122222',
+        '207107107111112',
+        ' 2222222222222']
+        .map((row)=>row.split('').map((char)=>(!isNaN(parseInt(char)))?parseInt(char):0)),
+      ui: {
+        counter: 0,
+        counterChanged() {
+          $('#counter').text(this.counter);
+        }
+      }
+    };
+  // }();
 
   let canvas = $('.js-grid'); // TODO de-jquerify
   let gr = canvas[0].getContext('2d'); // TODO de-jquerify
@@ -65,11 +75,30 @@ $(() => { // TODO de-jquerify
      700077 701120 701220 701250 702120 702221 702251 702321 702525 702720 `.trim().split(/\s+/);
   //
 
+  let resetCounter = function(sim) {
+    sim.ui.counter = 0
+    sim.ui.counterChanged()
+    // $('#counter').text('0')
+  };
+
+  let clearGrid = function(size) {
+    plane = [];
+    for (var row = 0; row < size; row++) {
+      plane.push([]);
+      for (var col = 0; col < size; col++) {
+        plane[row].push(0);
+      }
+    }
+    return plane;
+  };
+
   let reInit = function(sim) {
+    console.debug("reinit")
+
     let options = sim.options;
     let a, b, c, d, e, k, m, n, o, p;
     sim.steps = 0;
-    $('#counter').text('0'); // TODO de-jquerify
+    resetCounter(sim); // TODO de-jquerify
     sim.stepsLeft = 0;
     sim.cd = 0;
     sim.running = false;
@@ -87,36 +116,22 @@ $(() => { // TODO de-jquerify
         }
       }
     }
-    sim.grid[0] = (function() {
-      let q, ref, results;
-      results = [];
-      for (a = q = 0, ref = options.gridSize; 0 <= ref ? q < ref : q > ref; a = 0 <= ref ? ++q : --q) {
-        results.push((function() {
-          let ref1, results1, u;
-          results1 = [];
-          for (b = u = 0, ref1 = options.gridSize; 0 <= ref1 ? u < ref1 : u > ref1; b = 0 <= ref1 ? ++u : --u) {
-            results1.push(0);
-          }
-          return results1;
-        })());
-      }
-      return results;
-    })();
-    sim.grid[1] = (function() {
-      let q, ref, results;
-      results = [];
-      for (a = q = 0, ref = options.gridSize; 0 <= ref ? q < ref : q > ref; a = 0 <= ref ? ++q : --q) {
-        results.push((function() {
-          let ref1, results1, u;
-          results1 = [];
-          for (b = u = 0, ref1 = options.gridSize; 0 <= ref1 ? u < ref1 : u > ref1; b = 0 <= ref1 ? ++u : --u) {
-            results1.push(0);
-          }
-          return results1;
-        })());
-      }
-      return results;
-    })();
+
+    // sim.grid[0] = (new Array(options.gridSize)).map((i) => {
+    //   return (new Array(options.gridSize)).map((j) => 0);
+    // });
+    // sim.grid[1] = (new Array(options.gridSize)).map((i) => {
+    //   return (new Array(options.gridSize)).map((j) => 0);
+    // });
+
+    // let initArray = (size, fill) => (new Array(size)).fill(typeof(fill) === 'function' ? fill() : fill);
+    // let initGrid = initArray.bind(undefined, options.gridSize);
+    // sim.grid[0] = initGrid(()=>initGrid(()=>0));
+    // sim.grid[1] = initGrid(()=>initGrid(()=>0));
+
+    sim.grid[0] = clearGrid(sim.options.gridSize);
+    sim.grid[1] = clearGrid(sim.options.gridSize);
+
     placeSeed(sim);
     initRules(sim);
     clearUndefinedRules(sim);
@@ -126,7 +141,7 @@ $(() => { // TODO de-jquerify
     let rules = sim.rules;
     let seed = sim.seed;
     let gridSize = sim.options.gridSize;
-    let startPos = (gridSize / 2) - 5;
+    let startPos = Math.floor((gridSize / 2) - 5);
     let seedLoc = {
       y: startPos
     };
@@ -235,7 +250,6 @@ $(() => { // TODO de-jquerify
   }(gr);
 
   let pauseButton = $('.js-pause-button'); // TODO de-jquerify
-
 
   let animateSimulation = (sim) => {
     run(sim);
