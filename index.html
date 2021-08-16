@@ -3,11 +3,9 @@
   <head>
     <meta charset="utf-8"/>
     <title>Langton's Loops</title>
-    <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
-    <script type="text/javascript" src="langton_loops.js"></script>
     <style>
     html {background-color: rgba(0,0,0,255);}
-      body,button { font-size: 22px; font-weight:bold;}
+      body,button { font-size: 22px; font-weight:bold; font-family: sans-serif;}
       .ui { position: absolute; z-index: 1; }
       #pause-button { top: 5px; }
       #reset-button { top: 60px; }
@@ -21,5 +19,6 @@
     <span class="ui" id="counter">0</span><br/>
     <button class="ui" type="button" id="reset-button">Reset</button>    
     <canvas width="500" height="500" id="gr"/>
+    <script type="text/javascript" src="langton_loops.js"></script>
   </body>
 </html>
