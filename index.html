@@ -2,8 +2,7 @@
 <html>
   <head>
     <title>Langton's Loops</title>
-    <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
-    <script type="text/javascript" src="langton_loops.js"></script>
+    <link rel="icon" href="data:">
     <style>
 
       html {
@@ -41,10 +40,11 @@
   </head>
   <body>
     <div class="ui">
-      <button class="ui__control js-pause-button" disabled="disabled">Start</button>
-      <button class="ui__control js-reset-button">Reset</button>
-      <span class="ui__label">Step: </span><span class="js-counter ui__label">0</span>
+      <button id="pause-button" class="ui__control js-pause-button" disabled="disabled">Start</button>
+      <button id="reset-button" class="ui__control js-reset-button">Reset</button>
+      <span class="ui__label">Step: </span><span id="counter" class="ui__label js-counter"></span>
     </div>
-    <canvas class="js-grid"/>
+    <canvas id="gr" class="js-grid"></canvas>
+    <script type="text/javascript" src="langton_loops.js"></script>
   </body>
 </html>
