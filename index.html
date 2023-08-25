@@ -1,50 +1,54 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Langton's Loops</title>
-    <link rel="icon" href="data:">
-    <style>
 
-      html {
-        background-color: black;
-      }
+<head>
+  <meta charset="utf-8" />
+  <title>Langton's Loops</title>
+  <link rel="icon" href="data:">
+  <style>
+    html {
+      background-color: black;
+    }
 
-      body,button {
-        font-size: 15px;
-        font-weight: bold;
-        font-family: sans-serif;
-      }
+    body,
+    button {
+      font-size: 15px;
+      font-weight: bold;
+      font-family: sans-serif;
+    }
 
-      .ui {
-        position: absolute;
-        z-index: 1;
-      }
+    .ui {
+      position: absolute;
+      z-index: 1;
+    }
 
-      .ui__control {
-        margin-top: 5px;
-        width: 5em;
-      }
+    .ui__control {
+      margin-top: 5px;
+      width: 5em;
+    }
 
-      .ui__label {
-        bottom: 10px;
-        color: white;
-      }
+    .ui__label {
+      bottom: 10px;
+      color: white;
+    }
 
-      .js-grid {
-        position: absolute;
-        left: 10px;
-        top: 10px;
-        z-index: 0;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="ui">
-      <button id="pause-button" class="ui__control js-pause-button" disabled="disabled">Start</button>
-      <button id="reset-button" class="ui__control js-reset-button">Reset</button>
-      <span class="ui__label">Step: </span><span id="counter" class="ui__label js-counter"></span>
-    </div>
-    <canvas id="gr" class="js-grid"></canvas>
-    <script type="text/javascript" src="langton_loops.js"></script>
-  </body>
+    .js-grid {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      z-index: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="ui">
+    <button id="pause-button" class="ui__control js-pause-button" disabled="disabled">Start</button>
+    <button id="reset-button" class="ui__control js-reset-button">Reset</button>
+    <span class="ui__label">Step: </span><span id="counter" class="ui__label js-counter"></span>
+  </div>
+  <canvas id="gr" class="js-grid"></canvas>
+  <script type="text/javascript" src="langton_loops.js"></script>
+</body>
+
 </html>
