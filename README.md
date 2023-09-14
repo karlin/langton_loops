@@ -1,1 +1,1 @@
-[See it live.](http://karlin.github.com/langton_loops/)
+[See it live.](http://karlin.github.io/langton_loops/)
